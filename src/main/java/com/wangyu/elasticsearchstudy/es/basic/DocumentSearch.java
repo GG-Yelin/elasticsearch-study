@@ -10,6 +10,8 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
@@ -37,9 +39,45 @@ public class DocumentSearch {
 
 //        searchByFuzzyCondition();
 
-        searchWithHighlight();
+//        searchWithHighlight();
+
+//        searchWithMax();
+
+        searchWithGroup();
+        
+    }
 
 
+    private static void searchWithGroup() throws IOException {
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.aggregation(AggregationBuilders.terms("age_groupby").field("age"));
+
+        request.source(sourceBuilder);
+
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+        client.close();
+    }
+
+    private static void searchWithMax() throws IOException {
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.aggregation(AggregationBuilders.max("maxAge").field("age"));
+
+        request.source(sourceBuilder);
+
+        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+        client.close();
     }
 
     private static void searchWithHighlight() throws IOException {
